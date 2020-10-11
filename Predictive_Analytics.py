@@ -12,6 +12,8 @@ from copy import deepcopy
 # Importing the data
 data = np.genfromtxt('data.csv', delimiter = ',', skip_header = 1)
 
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 def Accuracy(y_true,y_pred):
     """
     :type y_true: numpy.ndarray
@@ -26,6 +28,8 @@ def Accuracy(y_true,y_pred):
             count+=1
             
     return count/len(y_true)
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def Recall(y_true,y_pred):
 
@@ -44,6 +48,8 @@ def Recall(y_true,y_pred):
             a = dict_truecnt[key]/cnt_class[key]
             rec_class = np.append(rec_class, a)
     return np.sum(rec_class)/len(np.unique(y_true))
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def Precision(y_true,y_pred):
     """
@@ -69,6 +75,8 @@ def Precision(y_true,y_pred):
             pres_class = np.append(pres_class, a)
     return np.sum(pres_class)/len(np.unique(y_true))
 
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 def WCSS(Clusters):
     """
@@ -81,6 +89,8 @@ def WCSS(Clusters):
         cluster_mean = np.mean(cluster, 0)
         wcss_sum += np.sum(np.square(np.linalg.norm(cluster - cluster_mean, axis=1)))
     return wcss_sum
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def ConfusionMatrix(y_true,y_pred):
     
@@ -101,6 +111,8 @@ def ConfusionMatrix(y_true,y_pred):
     
     return confusion_matrix
 
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 def KNN(X_train,X_test,Y_train,k):
     
     if k==0:
@@ -110,22 +122,21 @@ def KNN(X_train,X_test,Y_train,k):
     X_train = X_train - np.mean(X_train, axis = 0)
     X_train = X_train / np.std(X_train, axis = 0)
     X_test = X_test - np.mean(X_test, axis = 0)
-    X_test = X_test / np.std(X_test, axis = 0)
-    
+    X_test = X_test / np.std(X_test, axis = 0)    
     Y_test =np.array([],int)   
     
-    for x_test in X_test:
-        
+    for x_test in X_test:        
         x_test = np.tile(x_test,(X_train.shape[0],1))
         distance = np.linalg.norm(X_train - x_test,axis = 1)
         j = np.argsort(distance)[:k,]
         labels_y = Y_train[j].astype(int)
         a = np.bincount(labels_y).argmax()
-        Y_test = np.append(Y_test,a)
-        
+        Y_test = np.append(Y_test,a)     
         
     return Y_test
 
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def RandomForest(X_train,Y_train,X_test):
     """
@@ -137,39 +148,27 @@ def RandomForest(X_train,Y_train,X_test):
     """
     
     def bootstrap_sampling(X_train, Y_train):
-
-
         idx = np.random.randint(len(Y_train), size = int(0.7*len(Y_train))) 
         X_train = X_train[idx]
         Y_train = Y_train[idx].astype(int)
-        
-    
         return X_train, Y_train
     
 
-    #---------------------------------------------------------------------------------------------------------------
-    
-    def calculate_gini(Y):
-    
+    def calculate_gini(Y):    
         cls, count = np.unique(Y, return_counts = True)
         j = len(Y)
         gini = 1
-
         for cnt in count:
             gini -= (cnt/j)**2 
-
         return gini
 
-    #----------------------------------------------------------------------------------------------------------
     
     def best_split(X_train, Y_train):
         best_f, best_thre = None, None
         x = len(X_train)
-
         min_gini = calculate_gini(Y_train)
 
         for i, f in enumerate(X_train.T):
-
             a = np.argsort(X_train[:,i])
             new_y = Y_train[a]
 
@@ -180,19 +179,16 @@ def RandomForest(X_train,Y_train,X_test):
                 gini_left = calculate_gini(Y_lef)
                 gini_right = calculate_gini(Y_righ)
                 wtd_gini_childs = ((j*gini_left)+(x-j)*gini_right)/x
-
+                
                 if f[j-1] == f[j]:
                     continue
 
                 if wtd_gini_childs < min_gini:
                     min_gini = wtd_gini_childs
                     best_thre = (f[j]+f[j-1])/2
-                    best_f = i 
-
-    
+                    best_f = i     
         return best_f, best_thre
 
-#______________________________________
 
     def grow_tree(X,Y,depth = 0):
         max_depth = 5
@@ -222,14 +218,11 @@ def RandomForest(X_train,Y_train,X_test):
                 else:
                     return {'class' : np.bincount(Y).argmax()}
         return node_inf  
- #------------------------------------------------------------------------------------------------------------------- 
-    
     
     def predict_tree(X_test,tree):
 
         X_test = X_test - np.mean(X_test, axis = 0)
         X_test = X_test / np.std(X_test, axis = 0)
-
         predictions = np.array([])
         tr = tree
 
@@ -243,33 +236,27 @@ def RandomForest(X_train,Y_train,X_test):
 
                 else:
                     tree = tree['right']
-
             predictions = np.append(predictions, tree.get('class'))
 
         return predictions
     
-    #------------------------------------------------------------------------------------------------------------
-    
 
 
-    
     trees =np.array([])
     for i in range(5):   # taking 9 bootstrap samples
 
         X,Y = bootstrap_sampling(X_train,Y_train)
-
         X = X - np.mean(X, axis = 0)
         X = X / np.std(X, axis = 0)
-
         tree  = grow_tree(X, Y, depth = 0) # growing tree for each sample
         trees = np.append(trees, tree)
 
     preds = np.array([predict_tree(X_test,tree) for tree in trees]).astype(int) # predicting for each tree
     final_pred = np.array([np.bincount(row).argmax() for row in preds.T]) # final prediction aggregating all the models
-    
-    
     return final_pred
-    
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  
 def PCA(X_train,N):
     """
     :type X_train: numpy.ndarray
@@ -294,9 +281,10 @@ def PCA(X_train,N):
     
     # The final data
     data = np.matmul(eig_vectors, X.T)
-    
     return data
-    
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   
 def Kmeans(X_train,N):
     """
     :type X_train: numpy.ndarray
@@ -345,6 +333,8 @@ def Kmeans(X_train,N):
     # Returning the final clusters
     clusters = np.array(clusters)
     return clusters
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def SklearnSupervisedLearning(X_train,Y_train,X_test):
     """
@@ -410,6 +400,8 @@ def SklearnSupervisedLearning(X_train,Y_train,X_test):
     result = np.array(result)
     return result
 
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 def SklearnVotingClassifier(X_train,Y_train,X_test):
     
     """
@@ -431,7 +423,7 @@ def SklearnVotingClassifier(X_train,Y_train,X_test):
     #ConfusionMatrix(y_true,predictions)
 
 """
-Create your own custom functions for Matplotlib visualization of hyperparameter search. 
+Create own custom functions for Matplotlib visualization of hyperparameter search. 
 Make sure that plots are labeled and proper legends are used
 """
 %matplotlib inline
