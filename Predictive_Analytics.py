@@ -14,105 +14,6 @@ data = np.genfromtxt('data.csv', delimiter = ',', skip_header = 1)
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def Accuracy(y_true,y_pred):
-    """
-    :type y_true: numpy.ndarray
-    :type y_pred: numpy.ndarray
-    :rtype: float
-    """
-    
-    count = 0
-    
-    for i in range(len(y_true)):
-        if y_true[i]==y_pred[i]:
-            count+=1
-            
-    return count/len(y_true)
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-def Recall(y_true,y_pred):
-
-    from collections import defaultdict 
-    rec_class = np.array([])
-    dict_truecnt = defaultdict(int)
-    
-    for i, y in enumerate(y_true):
-        if y_true[i]==y_pred[i]:
-            dict_truecnt[y] += 1
-            
-    cnt_class = np.bincount(y_true)
-
-    for key in dict_truecnt:
-        if cnt_class[key]!=0:
-            a = dict_truecnt[key]/cnt_class[key]
-            rec_class = np.append(rec_class, a)
-    return np.sum(rec_class)/len(np.unique(y_true))
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-def Precision(y_true,y_pred):
-    """
-    :type y_true: numpy.ndarray
-    :type y_pred: numpy.ndarray
-    :rtype: float
-    """
-
-    from collections import defaultdict 
-    pres_class = np.array([])
-    dict_truecnt = defaultdict(int)
-    
-    for i, y in enumerate(y_true):
-        if y_true[i]==y_pred[i]:
-            dict_truecnt[y] += 1
-            
-    cnt_class = np.bincount(y_pred)
-
-    
-    for key in dict_truecnt:
-        if cnt_class[key]!=0:
-            a = dict_truecnt[key]/cnt_class[key]
-            pres_class = np.append(pres_class, a)
-    return np.sum(pres_class)/len(np.unique(y_true))
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-def WCSS(Clusters):
-    """
-    :Clusters List[numpy.ndarray]
-    :rtype: float
-    """
-    wcss_sum = 0
-
-    for cluster in Clusters:
-        cluster_mean = np.mean(cluster, 0)
-        wcss_sum += np.sum(np.square(np.linalg.norm(cluster - cluster_mean, axis=1)))
-    return wcss_sum
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-def ConfusionMatrix(y_true,y_pred):
-    
-    """
-    :type y_true: numpy.ndarray
-    :type y_pred: numpy.ndarray
-    :rtype: float
-    """  
-    y_true = pd.Series(y_true, name='Actual')
-    y_pred = pd.Series(y_pred, name='Predicted')
-    confusion_matrix = pd.crosstab(y_true, y_pred)
-    
-    fig, ax = plt.subplots()
-    ax.imshow(confusion_matrix, cmap= 'cool')
-    for i in range(confusion_matrix.shape[0]):
-        for j in range(confusion_matrix.shape[1]):
-            ax.text(j, i, "{}".format(confusion_matrix.iloc[i,j]), ha="center", va="center",color="r")
-    
-    return confusion_matrix
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 def KNN(X_train,X_test,Y_train,k):
     
     if k==0:
@@ -335,6 +236,106 @@ def Kmeans(X_train,N):
     return clusters
 
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def Accuracy(y_true,y_pred):
+    """
+    :type y_true: numpy.ndarray
+    :type y_pred: numpy.ndarray
+    :rtype: float
+    """
+    
+    count = 0
+    
+    for i in range(len(y_true)):
+        if y_true[i]==y_pred[i]:
+            count+=1
+            
+    return count/len(y_true)
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def Recall(y_true,y_pred):
+
+    from collections import defaultdict 
+    rec_class = np.array([])
+    dict_truecnt = defaultdict(int)
+    
+    for i, y in enumerate(y_true):
+        if y_true[i]==y_pred[i]:
+            dict_truecnt[y] += 1
+            
+    cnt_class = np.bincount(y_true)
+
+    for key in dict_truecnt:
+        if cnt_class[key]!=0:
+            a = dict_truecnt[key]/cnt_class[key]
+            rec_class = np.append(rec_class, a)
+    return np.sum(rec_class)/len(np.unique(y_true))
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def Precision(y_true,y_pred):
+    """
+    :type y_true: numpy.ndarray
+    :type y_pred: numpy.ndarray
+    :rtype: float
+    """
+
+    from collections import defaultdict 
+    pres_class = np.array([])
+    dict_truecnt = defaultdict(int)
+    
+    for i, y in enumerate(y_true):
+        if y_true[i]==y_pred[i]:
+            dict_truecnt[y] += 1
+            
+    cnt_class = np.bincount(y_pred)
+
+    
+    for key in dict_truecnt:
+        if cnt_class[key]!=0:
+            a = dict_truecnt[key]/cnt_class[key]
+            pres_class = np.append(pres_class, a)
+    return np.sum(pres_class)/len(np.unique(y_true))
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+def WCSS(Clusters):
+    """
+    :Clusters List[numpy.ndarray]
+    :rtype: float
+    """
+    wcss_sum = 0
+
+    for cluster in Clusters:
+        cluster_mean = np.mean(cluster, 0)
+        wcss_sum += np.sum(np.square(np.linalg.norm(cluster - cluster_mean, axis=1)))
+    return wcss_sum
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def ConfusionMatrix(y_true,y_pred):
+    
+    """
+    :type y_true: numpy.ndarray
+    :type y_pred: numpy.ndarray
+    :rtype: float
+    """  
+    y_true = pd.Series(y_true, name='Actual')
+    y_pred = pd.Series(y_pred, name='Predicted')
+    confusion_matrix = pd.crosstab(y_true, y_pred)
+    
+    fig, ax = plt.subplots()
+    ax.imshow(confusion_matrix, cmap= 'cool')
+    for i in range(confusion_matrix.shape[0]):
+        for j in range(confusion_matrix.shape[1]):
+            ax.text(j, i, "{}".format(confusion_matrix.iloc[i,j]), ha="center", va="center",color="r")
+    
+    return confusion_matrix
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 def SklearnSupervisedLearning(X_train,Y_train,X_test):
     """
